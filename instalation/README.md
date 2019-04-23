@@ -1,6 +1,7 @@
 
 ## https://www.youtube.com/watch?v=w5K_fUcg8qQ
 
+docker pull mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1
 docker pull mirrorgooglecontainers/kube-apiserver:v1.14.1
 docker pull mirrorgooglecontainers/kube-controller-manager:v1.14.1
 docker pull mirrorgooglecontainers/kube-scheduler:v1.14.1
@@ -10,6 +11,7 @@ docker pull mirrorgooglecontainers/etcd:3.3.10
 docker pull coredns/coredns:1.3.1
 
 
+docker tag docker.io/mirrorgooglecontainers/kubernetes-dashboard-amd64:v1.10.1 k8s.gcr.io/kubernetes-dashboard-amd64:v1.10.1
 docker tag docker.io/mirrorgooglecontainers/kube-apiserver:v1.14.1 k8s.gcr.io/kube-apiserver:v1.14.1
 docker tag docker.io/mirrorgooglecontainers/kube-controller-manager:v1.14.1 k8s.gcr.io/kube-controller-manager:v1.14.1
 docker tag docker.io/mirrorgooglecontainers/kube-scheduler:v1.14.1 k8s.gcr.io/kube-scheduler:v1.14.1
