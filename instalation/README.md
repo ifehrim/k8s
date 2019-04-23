@@ -66,3 +66,14 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 9. Configure flannel networking for your docker containner.
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+
+10.join
+
+
+kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
+
+kubeadm join --token pdpa3x.aft8fdh97igu4cz6 10.88.16.69:6443 --discovery-token-unsafe-skip-ca-verification
+
+
+
