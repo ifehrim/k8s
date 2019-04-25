@@ -23,6 +23,8 @@ docker tag docker.io/coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
 
 This video demonstrate about how to configure kubernetes cluster in redhat7/centOS7 environment. Simple few step to setup and build your kubernetes cluster.
 
+//--registry-mirror=https://registry.docker-cn.com
+
 ===============================
 1. Install packages on master and minions
 yum install kubeadm docker -y
@@ -30,6 +32,7 @@ yum install kubeadm docker -y
 2. Stop firewall/selinux
 sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
 
+setenforce 0
 systemctl stop firewalld
 
 
@@ -39,9 +42,6 @@ name=Kubernetes
 baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
 enabled=1
 gpgcheck=0
-
-
-yum install -y docker kubelet kubeadm kubectl --disableexcludes=kubernetes
 
 
 
@@ -61,6 +61,7 @@ sysctl -p
 
 7. Set IP range for pods or docker container:
 kubeadm init --pod-network-cidr=172.30.0.0/16
+kubeadm init --pod-network-cidr=10.244.0.0/16
 
 8. mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -73,9 +74,53 @@ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documen
 10.join
 
 
+kubeadm token create --print-join-command >> worker_init.sh
+
+kubeadm join 10.88.16.68:6443 --token k8cbhw.3o9idkilkqnael5b \
+    --discovery-token-ca-cert-hash sha256:312c270ba09bad296cc44380ce49db124a66ddb6db100239841d36a4a4135df0
+
+kubeadm join 10.88.16.69:6443 --token p0mg8d.aaa3vyaafj5ixo3r \
+    --discovery-token-ca-cert-hash sha256:27d9782f948f4c37175c192fe5ed73f71d44f37bd83ad80471ae4e074748de9a
+
 kubeadm join --token <token> <master-ip>:<master-port> --discovery-token-ca-cert-hash sha256:<hash>
 
+kubeadm join --token k8cbhw.3o9idkilkqnael5b 10.88.16.68:6443 --discovery-token-unsafe-skip-ca-verification
 kubeadm join --token pdpa3x.aft8fdh97igu4cz6 10.88.16.69:6443 --discovery-token-unsafe-skip-ca-verification
+
+kubectl proxy --accept-hosts="^*$"
+kubectl proxy --port=8001 --address='10.88.16.68' --accept-hosts="^*$"
+
+
+kubectl delete deployment kubernetes-dashboard --namespace=kube-system
+kubectl delete service kubernetes-dashboard  --namespace=kube-system
+kubectl delete role kubernetes-dashboard-minimal --namespace=kube-system
+kubectl delete rolebinding kubernetes-dashboard-minimal --namespace=kube-system
+kubectl delete sa kubernetes-dashboard --namespace=kube-system
+kubectl delete secret kubernetes-dashboard-certs --namespace=kube-system
+kubectl delete secret kubernetes-dashboard-key-holder --namespace=kube-system
+
+
+step 1 install kubectl in your local machine    
+step 2 sudo scp root@10.88.16.68:/etc/kubernetes/admin.conf ~/.kube/config   
+step 3 kubectl proxy  
+step 4 kubectl describe secret dashboard-token-2rtkz
+
+
+sudo scp root@10.88.16.68:/etc/kubernetes/admin.conf ~/.kube/config
+
+
+eyJhbGciOiJSUzI1NiIsImtpZCI6IiJ9.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJhZG1pbi11c2VyLXRva2VuLTlqdjlzIiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6ImFkbWluLXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiIzY2QzNzZmOC02NjViLTExZTktYjdkZi0wMDIzMjRiMzQ1NWYiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZS1zeXN0ZW06YWRtaW4tdXNlciJ9.psRanL_dQ-ZTkYLpNMeTximRtxmFlMLe_Vlrhwq06QrtaZbvIcSm0BIGSCFP9qoToYTIBNR1sKCWd-ueAEqz3rbGKqXj0MEFCrmkgLxyIYPySub1Nne9S5XG5oUY7-VNLkNDbcReXZdQBrfmJFb-78w4jpRH7gv1YOZxHroIrUQK_kKGkAU7PmhShh9pYB2SZNKCuexzd_j6eniz7TfnSKSfhCrgtjmvTrAu4GowVEtw4CDjYYt19rzV-OqcU98BeUScRy0u2eadZ7LsS0EUqwYFDBzNb08zsXvAgRejbWFwirvMkwqzapLr-p2rQJ6uopJYhN_M8PZ3czhhopwJWw
+
+
+kubectl create serviceaccount dashboard -n default
+
+kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
+
+
+kubectl describe sa dashboard
+kubectl describe secret dashboard-token-2rtkz
+
+kubectl get secret $(kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
 
 
 
