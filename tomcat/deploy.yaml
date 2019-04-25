@@ -1,0 +1,48 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  labels:
+    app: kube-tomcat
+    version: v1.1.1
+  name: kube-tomcat
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-tomcat
+  template:
+    metadata:
+      labels:
+        app: kube-tomcat
+    spec:
+      containers:
+        - name: kube-tomcat
+          image: docker.io/chenyufeng/tomcat-centos
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          args:
+            - --auto-generate-certificates
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    app: kube-tomcat
+  name: kube-tomcat
+  namespace: default
+spec:
+  type: NodePort
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: kube-tomcat
