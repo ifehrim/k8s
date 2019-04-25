@@ -1,0 +1,1 @@
+kubectl run hello-world --replicas=5 --labels="run=load-balancer-example" --image=vaikulkaz/hello-go-gke:1.0  --port=8080

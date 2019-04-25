@@ -21,9 +21,24 @@ docker tag docker.io/mirrorgooglecontainers/etcd:3.3.10 k8s.gcr.io/etcd:3.3.10
 docker tag docker.io/coredns/coredns:1.3.1 k8s.gcr.io/coredns:1.3.1
 
 
+
+docker pull mirrorgooglecontainers/node-hello:1.0
+docker pull gcr.io/google-samples/node-hello:1.0
+
+
+
 This video demonstrate about how to configure kubernetes cluster in redhat7/centOS7 environment. Simple few step to setup and build your kubernetes cluster.
 
 //--registry-mirror=https://registry.docker-cn.com
+
+cat /etc/yum.repos.d/kubernetes.repo 
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=0
+
+
 
 ===============================
 1. Install packages on master and minions
@@ -36,12 +51,6 @@ setenforce 0
 systemctl stop firewalld
 
 
-cat /etc/yum.repos.d/kubernetes.repo 
-[kubernetes]
-name=Kubernetes
-baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64
-enabled=1
-gpgcheck=0
 
 
 
