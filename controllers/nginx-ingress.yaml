@@ -3,6 +3,10 @@ kind: Ingress
 metadata:
   name: nginx-ingress
 spec:
-  backend:
-    serviceName: nginx-service
-    servicePort: 8080
+  rules:
+    - http:
+        paths:
+          - path: /*
+            backend:
+              serviceName: nginx-service
+              servicePort: 8080
